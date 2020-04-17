@@ -1,10 +1,12 @@
 ---
 title: "Michael Barrowman"
+always_allow_html: true
 output:
   html_document:
     includes:
       in_header: "header.html" 
     css: style.css
+#  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -14,35 +16,109 @@ library(kableExtra)
 library(lubridate)
 library(magrittr)
 library(glue)
-library(png)
 ```
 
 ```{r functions, include=F}
-get_format <- function(x=NULL)
+
+## Functions related to which format we are using
 {
-  if(knitr:::is_latex_output())
-    cFormat <- "latex" else 
-      cFormat <- "html"
-    
-  if(!is.null(x))
+  get_format <- function(x=NULL)
   {
-    return(cFormat == x)
-  } else {
-    return(cFormat)
+    if(knitr:::is_latex_output())
+      cFormat <- "latex" else 
+        cFormat <- "html"
+      
+    if(!is.null(x))
+    {
+      return(cFormat == x)
+    } else {
+      return(cFormat)
+    }
+  }
+  
+  create_choice <- function(...)
+  {
+    res <- list(...)
+    if(is.null(names(res))) names(res) <- c("latex","html")
+    class(res) <- "choiceobject"
+    nm <- names(res)
+    sep <- case_when(nm == "html" ~ "<br>",
+                     nm == "latex" ~ "\\newline ",
+                     T ~ "")
+    res <- lapply(1:length(res),
+                  function(i) paste0(res[[i]],collapse=sep[i]))
+    names(res) <- nm
+    class(res) <- "choiceobject"
+    return(res)
+  }
+  
+  get_choice <- function(choiceobj)
+  {
+    if(class(choiceobj) == "choiceobject")
+    {
+      return(choiceobj[[get_format()]])
+    } else
+      return(choiceobj)
   }
 }
 
-format_choice <- function(.latex,.html)
+glue_template <- function(.tbl,variable_name,template)
 {
-  if(get_format("html"))
-    return(.html)
+  glue_string <- get_choice(template)
   
-  if(get_format("latex"))
-    return(.latex)
+  .tbl %>%
+    mutate(!!enquo(variable_name) := 
+             paste0(str_glue_data(.tbl,glue_string)))
+    
 }
 
- 
+make_authors <- function(.tbl,authors_var)
+{
+  old_authors <- c("First Author","Second Author", "Third Author","More Authors")
+  if(any(!old_authors %in% names(.tbl)))
+    stop("Missing Author variable")
+  
+  gl1 <- "{`First Author`}"
+  gl2 <- "{`First Author`} & {`Second Author`}"
+  gl3 <- "{`First Author`}, {`Second Author`} & {`Third Author`}"
+  gl4 <- "{`First Author`}, {`Second Author`}, {`Third Author`} & {`More Authors`}"
+  gl5 <- "{`First Author`}, {`Second Author`}, {`Third Author`} et al"
+  
+  
+  .tbl %>%
+    mutate(.aut_glue = case_when(`More Authors` == "et al" ~ gl5,
+                                 `More Authors` != "" ~ gl4,
+                                 `Third Author` != "" ~ gl3,
+                                 `Second Author` != "" ~ gl2,
+                                 T ~ gl1)) %>%
+    split(1:nrow(.)) %>%
+    map_dfr(~mutate(.,.autemp = paste0(glue(.aut_glue)))) %>%
+    mutate(.autemp = gsub("MA Barrowman","**MA Barrowman**",.autemp,fixed=T)) %>%
+    mutate(!!enquo(authors_var) := .autemp) %>%
+    select(-.aut_glue,-.autemp)
+  
+}
+
+kable_W <- function(.tbl,...)
+{
+  .tbl %>%
+    if_fun(get_format("latex"),
+           function(x) x %>%
+             mutate_if(is.character,~gsub("&","\\&",.,fixed=T))%>%
+             rename_all(~gsub("&","\\&",.,fixed=T))) %>%
+    kable(...,
+          format=get_format(),
+          escape=F,
+          booktabs=T,col.names=rep("",ncol(.tbl)))
+}
     
+if_fun <- function(.x,.predicate,.fun,.elsefun=NULL) 
+{
+  if(.predicate) .fun(.x) else 
+    if(!is.null(.elsefun))
+      .elsefun(.x) else
+        .x
+}
   
 
 
@@ -52,21 +128,28 @@ format_choice <- function(.latex,.html)
 
 :::{}
 
-```{r profile,echo=F}
-knitr::include_graphics("img/ProfileRaw.jpg")
+```{r profile,echo=F,out.width="95%"}
+knitr::include_graphics("img/ProfileHex.png")
 ```
 
 
 
 ```{r contact, echo=F}
+
+contact_template <- create_choice(
+  latex = "{medium}: {contact}",
+  html = "<img src=\"{favicon}\" width=\"20px\" >: <a href =\"{link}\">{contact}</a>"
+)
+
 read_csv("data/Contact.csv",col_types=cols()) %>%
-  mutate(logo=paste0("<img src=\"img/",medium,"-logo.png\" width=\"20px\" />",
-                     "<a href=\"",link,"\">",
-                     contact,
-                     "</a>",
-                     "</img>")) %>%
-  select(logo) %>%
-  kable(col.names="",escape=F)
+  mutate(favicon = paste0("img/",medium,"-logo.png"),
+         missing_favicon = !file.exists(favicon),
+         favicon = if_else(missing_favicon,
+                           paste0("http://www.google.com/s2/favicons?domain=",link),
+                           favicon))%>%
+  glue_template(ss,contact_template) %>%
+  select(ss) %>%
+  kable_W
 
 ```
 
@@ -80,14 +163,31 @@ read_csv("data/Contact.csv",col_types=cols()) %>%
 
 ## Bio
 
-I am currently studying towards a PhD in Medicine with a focus on statistics from both an applied and methodological perspective, whilst working as a Maths and Stats Tutor. I have experience in the public and private sector, dealing primarily with medical and education data, and can provide in-depth outputs and precise insights to a wide range of audiences. I am quick to learn new systems, processes or data structures and can breakdown complicated ideas in a simple and understandable way. I am experienced in tutoring and teaching at most levels of education, primarily focusing on mathematics and statistics. I am accomplished in a multitude of professional software and programming languages including R with RMarkdown, LaTeX, SPSS, nVivo, SAS, Stata, Python, SQL, Excel (w/VBA), Google Sheets (w/ Script).
+### About Me
+
+I am currently studying towards a PhD in Medicine with a focus on statistics from both an applied and methodological perspective, whilst working as a Maths and Stats Tutor and developing my skills as a keen data scientist, particularly in R. I have experience in the public and private sector, dealing primarily with medical and education data. 
+
+### Skills
+
+```{r skills, echo=F}
+skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML","Photoshop") %>%
+  paste0("<img src=\"img/",.,"-logo.png\" height=20px/> ",.) %>%
+  paste0(collapse="&mdash;")
+```
+
+`r skills_hl`
+
+
+This Online CV was coded using RMarkdown [[Source](https://github.com/MyKo101/CV)]
 
 
 ## Experience
 
-
+&nbsp;
 
 I have worked in a variety of roles in both the public and private sector, covering two primary fields: Education and Data Analysis. Several of my roles have incorporated both of these facets.
+
+&nbsp;
 
 ```{r, echo=F}
 Exp_tbl <- read_csv("data/Experience.csv",col_types = cols()) %>%
@@ -98,22 +198,87 @@ Exp_tbl <- read_csv("data/Experience.csv",col_types = cols()) %>%
   arrange(Employer,!is.na(End),desc(End)) %>%
   mutate(Start = format(Start,"%b '%y"),
          End = format(End,"%b '%y"),
-         End = replace_na("Present"))
+         End = replace_na(End,"Present"))
 
-Exp_Template <- format_choice(
-  "*{`Job Title`}*, _{Start} - {End}_\\newline{Description}",
-  "*{`Job Title`}*, _{Start} - {End}_<br>{Description}"
+Exp_Template <- create_choice(
+  latex=c("**{`Job Title`}**, {Start} - {End}",
+          "{Description}"),
+  html="<div class=\"grow\">**{`Job Title`}**, {Start} - {End}<p>{Description}</p></div>"
 )
 
 
 grp_index <- auto_index(as.character(Exp_tbl$Employer))
 Exp_tbl %<>% select(-Employer)
 
-Exp_tbl %>% 
-  transmute(ss = paste0(str_glue_data(.,Exp_Template))) %>%
-  kable(format=get_format,escape=F,col.names=NULL) %>%
-  kable_styling(bootstrap_options = "basic") %>%
+Exp_tbl %>%
+  glue_template(ss,Exp_Template) %>%
+  select(ss) %>%
+  kable_W %>%
+  kable_styling(bootstrap_options = "basic",
+                latex_options=) %>%
   pack_rows(index=grp_index)
+```
+
+## Packages
+
+&nbsp;
+
+```{r packages,echo=F, asis=T}
+
+Pack_tbl <- read_csv("data/Packages.csv",col_types=cols())
+
+Package_img <- create_choice(
+  latex=c("NULL"),
+  html=c("<center><a href=\"{link}\"><img src=\"{logo}\" width=\"95\\%\"/></a></center>")
+)
+
+Package_text <- create_choice(
+  latex=c("**{Name}**","{Description}"),
+  html=c("**{Name}**","{Description}")
+)
+
+Pack_out <- Pack_tbl %>%
+  glue_template(img,Package_img) %>%
+  glue_template(text,Package_text) %>%
+  select(img,text) %>%
+  mutate(align = row_number() %% 2 == 1,
+         left_col = if_else(align,img,text),
+         right_col = if_else(align,text,img)) %>%
+  select(align,left_col,right_col) %>%
+  split(1:nrow(.)) %>%
+  map_chr(function(x)
+    {
+      align <- x$align
+      x %>%
+        select(left_col,right_col) %>%
+        kable_W %>%
+        column_spec(column=1+1*!align,width="20%") %>%
+        paste0
+    }) %>%
+  paste0(collapse="\n")
+```
+`r Pack_out`
+
+## Publications
+&nbsp;
+
+
+```{r publications, echo=F}
+
+
+Pub_Template <- create_choice(
+  latex="{authors}, *{Title}*, {Journal} ({Year}) doi:{doi}",
+  html="<p>{authors}, *{Title}*, {Journal} ({Year}) doi:<a href=\"https://doi.org/{doi}\">{doi}</a></p>"
+)
+
+read_csv("data/Publications.csv",col_types=cols()) %>%
+  make_authors(authors) %>%
+  glue_template(ss,Pub_Template) %>%
+  select(ss)%>%
+  if_fun(get_format("html"),
+         function(x) kable_W(x,padding=0),
+         function(x) kable_W(x))
+
 ```
 
 :::

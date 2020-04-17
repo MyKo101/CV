@@ -1,4 +1,7 @@
 medium,contact,link
-tel,(+44) 07467 456 803,
+tel,(+44) 07467 456 803,tel:+447467456803
 email,myko101ab@gmail.com,mailto:myko101ab@gmail.com
-twitter,@MyKo101ab,twitter.com/MyKo101ab
+twitter,@MyKo101ab,https://twitter.com/MyKo101ab
+github,MyKo101,https://github.com/MyKo101
+orcid,0000-0003-0718-4482,https://orcid.org/0000-0003-0718-4482
+linkedin,michael-barrowman,https://www.linkedin.com/in/michael-barrowman-0403a960/

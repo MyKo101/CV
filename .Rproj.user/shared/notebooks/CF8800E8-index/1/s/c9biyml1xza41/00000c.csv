@@ -1,8 +1,0 @@
-"0","read_csv(""data/Contact.csv"",col_types=cols()) %>%"
-"0","  mutate(logo=paste0(""<img src=\""img/"",medium,""-logo.png\"" width=\""20px\"" />"","
-"0","                     ""<a href=\"""",link,""\"">"","
-"0","                     contact,"
-"0","                     ""</a>"","
-"0","                     ""</img>"")) %>%"
-"0","  select(logo) %>%"
-"0","  kable(col.names="""")"
