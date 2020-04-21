@@ -142,7 +142,7 @@ contact_template <- create_choice(
 )
 
 read_csv("data/Contact.csv",col_types=cols()) %>%
-  mutate(favicon = paste0("img/",medium,"-logo.png"),
+  mutate(favicon = paste0("img/logos/",medium,"-logo.png"),
          missing_favicon = !file.exists(favicon),
          favicon = if_else(missing_favicon,
                            paste0("http://www.google.com/s2/favicons?domain=",link),
@@ -170,8 +170,8 @@ I am currently studying towards a PhD in Medicine with a focus on statistics fro
 ### Skills
 
 ```{r skills, echo=F}
-skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML","Photoshop") %>%
-  paste0("<img src=\"img/",.,"-logo.png\" height=20px/> ",.) %>%
+skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS","Photoshop") %>%
+  paste0("<img src=\"img/logos/",gsub("/","-",.),"-logo.png\" height=20px/> ",.) %>%
   paste0(collapse="&mdash;")
 ```
 
