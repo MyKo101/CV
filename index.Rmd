@@ -1,12 +1,15 @@
 ---
-title: "Michael Barrowman"
+title: "Michael Barrowman, MSci"
 always_allow_html: true
 output:
   html_document:
     includes:
       in_header: "header.html" 
     css: style.css
-#  pdf_document: default
+  pdf_document: default
+header-include:
+- \usepackage{makecell}
+- \usepackage{graphicx}
 ---
 
 ```{r setup, include=FALSE}
@@ -36,39 +39,19 @@ library(glue)
     }
   }
   
-  create_choice <- function(...)
+  fmt_choice <- function(...)
   {
-    res <- list(...)
-    if(is.null(names(res))) names(res) <- c("latex","html")
-    class(res) <- "choiceobject"
-    nm <- names(res)
-    sep <- case_when(nm == "html" ~ "<br>",
-                     nm == "latex" ~ "\\newline ",
-                     T ~ "")
-    res <- lapply(1:length(res),
-                  function(i) paste0(res[[i]],collapse=sep[i]))
-    names(res) <- nm
-    class(res) <- "choiceobject"
-    return(res)
+    return(list(...)[[get_format()]])
   }
   
-  get_choice <- function(choiceobj)
-  {
-    if(class(choiceobj) == "choiceobject")
-    {
-      return(choiceobj[[get_format()]])
-    } else
-      return(choiceobj)
-  }
 }
 
 glue_template <- function(.tbl,variable_name,template)
 {
-  glue_string <- get_choice(template)
-  
   .tbl %>%
     mutate(!!enquo(variable_name) := 
-             paste0(str_glue_data(.tbl,glue_string)))
+             paste0(str_glue_data(.tbl,template,
+                                  .open="{{",.close="}}")))
     
 }
 
@@ -78,11 +61,11 @@ make_authors <- function(.tbl,authors_var)
   if(any(!old_authors %in% names(.tbl)))
     stop("Missing Author variable")
   
-  gl1 <- "{`First Author`}"
-  gl2 <- "{`First Author`} & {`Second Author`}"
-  gl3 <- "{`First Author`}, {`Second Author`} & {`Third Author`}"
-  gl4 <- "{`First Author`}, {`Second Author`}, {`Third Author`} & {`More Authors`}"
-  gl5 <- "{`First Author`}, {`Second Author`}, {`Third Author`} et al"
+  gl1 <- "{{`First Author`}}"
+  gl2 <- "{{`First Author`}} & {{`Second Author`}}"
+  gl3 <- "{{`First Author`}}, {{`Second Author`}} & {{`Third Author`}}"
+  gl4 <- "{{`First Author`}}, {{`Second Author`}}, {{`Third Author`}} & {{`More Authors`}}"
+  gl5 <- "{{`First Author`}}, {{`Second Author`}}, {{`Third Author`}} et al"
   
   
   .tbl %>%
@@ -92,7 +75,7 @@ make_authors <- function(.tbl,authors_var)
                                  `Second Author` != "" ~ gl2,
                                  T ~ gl1)) %>%
     split(1:nrow(.)) %>%
-    map_dfr(~mutate(.,.autemp = paste0(glue(.aut_glue)))) %>%
+    map_dfr(~glue_template(.,.autemp,.$.aut_glue)) %>%
     mutate(.autemp = gsub("MA Barrowman","**MA Barrowman**",.autemp,fixed=T)) %>%
     mutate(!!enquo(authors_var) := .autemp) %>%
     select(-.aut_glue,-.autemp)
@@ -109,7 +92,8 @@ kable_W <- function(.tbl,...)
     kable(...,
           format=get_format(),
           escape=F,
-          booktabs=T,col.names=rep("",ncol(.tbl)))
+          booktabs=T,
+          col.names=rep("",ncol(.tbl)))
 }
     
 if_fun <- function(.x,.predicate,.fun,.elsefun=NULL) 
@@ -124,9 +108,11 @@ if_fun <- function(.x,.predicate,.fun,.elsefun=NULL)
 
 ```
 
-::::{style="display: grid; grid-template-columns: 1fr 2fr; grid-column-gap: 20px;"}
+:::::{class="brow"}
 
-:::{}
+::::{class="trow"}
+
+:::{class="leftpanel"}
 
 ```{r profile,echo=F,out.width="95%"}
 knitr::include_graphics("img/ProfileHex.png")
@@ -136,9 +122,9 @@ knitr::include_graphics("img/ProfileHex.png")
 
 ```{r contact, echo=F}
 
-contact_template <- create_choice(
-  latex = "{medium}: {contact}",
-  html = "<img src=\"{favicon}\" width=\"20px\" >: <a href =\"{link}\">{contact}</a>"
+contact_template <- fmt_choice(
+  latex = "{{medium}}: {{contact}}",
+  html = "<img src=\"{{favicon}}\" width=\"20px\" >: <a href =\"{{link}}\">{{contact}}</a>"
 )
 
 read_csv("data/Contact.csv",col_types=cols()) %>%
@@ -161,20 +147,28 @@ read_csv("data/Contact.csv",col_types=cols()) %>%
 
 ### About Me
 
-I am currently studying towards a PhD in Medicine with a focus on statistics from both an applied and methodological perspective, whilst working as a Maths and Stats Tutor and developing my skills as a keen data scientist, particularly in R. I have experience in the public and private sector, dealing primarily with medical and education data. 
+I have a Masters degree in Mathematics and am currently studying towards a PhD in Medicine with a focus on statistics from both an applied and methodological perspective. I am also working as a Maths and Stats Tutor, whilst developing my skills as a keen data scientist. I have a wide range of knowledge about a multitude of computer languages and data analysis techniques and enjoy learning more of what these languages have to offer. I am an excellent communicator and can convey complex ideas into simple narratives.
 
 ### Skills
 
 ```{r skills, echo=F}
+
+skills_template <- fmt_choice(
+  latex="{{skill}}",
+  html="<span class=skilllogo><img src=\"{{logo}}\" height=20px/>{{skill}}</span>")
+                                 
+  
+  
 skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS","Python","SAS","Stata","SQL","Photoshop") %>%
-  paste0("<span class=skilllogo><img src=\"img/logos/",gsub("/","-",.),"-logo.png\" height=20px/> ",.,"</span>") %>%
-  paste0(collapse="&emsp13;&mdash;&emsp13;")
+  tibble(skill=.) %>%
+  mutate(logo = paste0("img/logos/",gsub("/","-",skill),"-logo.png")) %>%
+  glue_template(ss,skills_template) %>%
+  pull(ss) %>%
+  paste0(collapse=fmt_choice(latex="\\quad ",html="&emsp13;&mdash;&emsp13;"))
 ```
 
 `r skills_hl`
 
-
-This Online CV was coded using RMarkdown [[Source](https://github.com/MyKo101/CV)]
 
 
 ## Experience
@@ -196,10 +190,10 @@ Exp_tbl <- read_csv("data/Experience.csv",col_types = cols()) %>%
          End = format(End,"%b '%y"),
          End = replace_na(End,"Present"))
 
-Exp_Template <- create_choice(
-  latex=c("**{`Job Title`}**, {Start} - {End}",
-          "{Description}"),
-  html="<div class=\"grow\">**{`Job Title`}**, {Start} - {End}<p>{Description}</p></div>"
+Exp_Template <- fmt_choice(
+  latex="\\makecell[l]{**{{`Job Title`}}**, {{Start}} - {{End}}\\\\\\
+          {{Description}}}",
+  html="<div class=\"grow\">**{{`Job Title`}}**, {{Start}} - {{End}}<p>{{Description}}</p></div>"
 )
 
 
@@ -211,7 +205,7 @@ Exp_tbl %>%
   select(ss) %>%
   kable_W %>%
   kable_styling(bootstrap_options = "basic",
-                latex_options=) %>%
+                latex_options="basic") %>%
   pack_rows(index=grp_index)
 ```
 
@@ -223,17 +217,18 @@ Exp_tbl %>%
 
 Pack_tbl <- read_csv("data/Packages.csv",col_types=cols())
 
-Package_img <- create_choice(
-  latex=c("NULL"),
-  html=c("<center><a href=\"{link}\"><img src=\"{logo}\" width=\"95\\%\"/></a></center>")
+Package_img <- fmt_choice(
+  latex="\\includegraphics{ {{logo}}}",
+  html="<center><a href=\"{{link}}\"><img src=\"{{logo}}\" width=\"95\\%\"/></a></center>"
 )
 
-Package_text <- create_choice(
-  latex=c("**{Name}**","{Description}"),
-  html=c("**{Name}**","{Description}")
+Package_text <- fmt_choice(
+  latex=c("\\makecell[l]{**{{Name}}**\\\\\\ {{Description}}}"),
+  html=c("**{{Name}}**<br>{{Description}}")
 )
 
 Pack_out <- Pack_tbl %>%
+  mutate(logo=paste0("img/logos/",Name,"-logo.png")) %>%
   glue_template(img,Package_img) %>%
   glue_template(text,Package_text) %>%
   select(img,text) %>%
@@ -248,7 +243,8 @@ Pack_out <- Pack_tbl %>%
       x %>%
         select(left_col,right_col) %>%
         kable_W %>%
-        column_spec(column=1+1*!align,width="20%") %>%
+        column_spec(column=1+1*!align,
+                    width=fmt_choice(html="20%",latex="0.2\textwidth")) %>%
         paste0
     }) %>%
   paste0(collapse="\n")
@@ -262,9 +258,9 @@ Pack_out <- Pack_tbl %>%
 ```{r publications, echo=F}
 
 
-Pub_Template <- create_choice(
-  latex="{authors}, *{Title}*, {Journal} ({Year}) doi:{doi}",
-  html="<p>{authors}, *{Title}*, {Journal} ({Year}) doi:<a href=\"https://doi.org/{doi}\">{doi}</a></p>"
+Pub_Template <- fmt_choice(
+  latex="{{authors}}, *{{Title}}*, {{Journal}} ({{Year}}) doi:{{doi}}",
+  html="<p>{{authors}}, *{{Title}}*, {{Journal}} ({{Year}}) doi:<a href=\"https://doi.org/{{doi}}\">{{doi}}</a></p>"
 )
 
 read_csv("data/Publications.csv",col_types=cols()) %>%
@@ -279,3 +275,8 @@ read_csv("data/Publications.csv",col_types=cols()) %>%
 
 :::
 ::::
+
+::::{class="footer"}
+Online CV Produced by Michael Barrowman via RMarkdown: [Source](https://github.com/MyKo101/CV)
+::::
+:::::

@@ -6,10 +6,6 @@ html {
   font-size: x-large;
 }
 
-.ul#skills li{
-  display: inline;
-}
-
 
 body {
   font-family: Calibri;
@@ -17,43 +13,19 @@ body {
   font-size: large;
 }
 
-/* The sidebar menu */
-.sidenav {
-  height: 100%; /* Full-height: remove this if you want "auto" height */
-  width: 33%; /* Set the width of the sidebar */
-  position: fixed; /* Fixed Sidebar (stay in place on scroll) */
-  z-index: 1; /* Stay on top */
-  top: 0; /* Stay at the top */
-  left: 0;
-  background-color: #111; /* Black */
-  overflow-x: hidden; /* Disable horizontal scroll */
-  padding-top: 20px;
+h1{
+  font-style: italic;
 }
 
-/* The navigation menu links */
-.sidenav a {
-  padding: 6px 8px 6px 16px;
-  text-decoration: none;
-  font-size: 25px;
-  color: #818181;
-  display: block;
+.brow {
+  display: grid;
+  min-height: 100%;
+  grid-row-gap: 20px;
+  grid-template-rows: auto 20px;
 }
 
-/* When you mouse over the navigation links, change their color */
-.sidenav a:hover {
-  color: #f1f1f1;
-}
-
-/* Style page content */
-.main {
-  margin-left: 33%; /* Same as the width of the sidebar */
-  padding: 0px 10px;
-}
-
-/* On smaller screens, where height is less than 450px, change the style of the sidebar (less padding and a smaller font size) */
-@media screen and (max-height: 450px) {
-  .sidenav {padding-top: 15px;}
-  .sidenav a {font-size: 18px;}
+.footer {
+  text-align: center;
 }
 
 .jobdesc {
@@ -87,4 +59,67 @@ body {
 
 .skilllogo {
   white-space:nowrap;
+}
+
+
+.trow {
+  display: grid;
+  grid-template-columns: 310px auto;
+  grid-column-gap: 20px;
+}
+
+.leftpanel{
+  display: grid;
+  grid-template-rows: 360px auto;
+  grid-row-gap: 20px;
+  max-height: 520px;
+}
+
+
+
+@media (max-width:860px){
+  .nav-tabs{
+    font-size: large;
+  }
+  
+  body{
+    font-size: medium;
+  }
+  
+  .trow {
+    grid-template-columns: 207px auto;
+    grid-column-gap: 10px;
+  }
+  .leftpanel{
+    grid-template-rows: 240px auto;
+    grid-row-gap: 10px;
+    max-height: 347px;
+  }
+
+  
+}
+
+@media (max-width:660px){
+  .nav-tabs{
+    font-size: large;
+  }
+  
+  body{
+    font-size: medium;
+  }
+  
+  .trow {
+    grid-template-columns: 1fr;
+    grid-template-rows: 240px auto;
+    grid-column-gap: 10px;
+  }
+  
+  .leftpanel{
+    grid-template-columns: 207px auto;
+    grid-template-rows: 1fr;
+    grid-row-gap: 10px;
+    align-items: center;
+  }
+
+  
 }
