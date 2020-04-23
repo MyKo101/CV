@@ -14,6 +14,7 @@ body {
 }
 
 h1{
+  font-size: xx-large;
   font-style: italic;
 }
 
@@ -121,5 +122,22 @@ h1{
     align-items: center;
   }
 
+}
+
+@media (max-width:440px){
+  h1.title{
+    font-size:x-large;
+  }
+  
+  .leftpanel{
+    grid-template-columns: 160px auto;
+  }
+}
+
+@media (max-width: 375px){
+  
+  body{
+    font-size: small;
+  }
   
 }
