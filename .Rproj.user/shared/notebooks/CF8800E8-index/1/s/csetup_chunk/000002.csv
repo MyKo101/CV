@@ -65,3 +65,5 @@ Attaching package: ‘glue’
     collapse
 
 "
+"0","options(knitr.kable.NA = """")"
+"0",""

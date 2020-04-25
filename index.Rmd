@@ -1,15 +1,34 @@
 ---
 title: "Michael Barrowman, MSci"
 always_allow_html: true
+geometry: "left=1cm,right=1cm,top=1cm,bottom=1cm"
+#classoption: twocolumn
+knit: (function(...) rmarkdown::render(...,output_format="all"))
 output:
   html_document:
     includes:
       in_header: "header.html" 
     css: style.css
-  pdf_document: default
-header-include:
+  pdf_document:
+    keep_tex: true
+    latex_engine: xelatex
+sansfont: Calibri Light
+header-includes:
+- \usepackage{booktabs}
+- \usepackage{longtable}
+- \usepackage{array}
+- \usepackage{multirow}
+- \usepackage{wrapfig}
+- \usepackage{float}
+- \usepackage{colortbl}
+- \usepackage{pdflscape}
+- \usepackage{tabu}
+- \usepackage{threeparttable}
+- \usepackage{threeparttablex}
+- \usepackage[normalem]{ulem}
 - \usepackage{makecell}
-- \usepackage{graphicx}
+- \usepackage{xcolor}
+- \usepackage{multicol}
 ---
 
 ```{r setup, include=FALSE}
@@ -19,6 +38,8 @@ library(kableExtra)
 library(lubridate)
 library(magrittr)
 library(glue)
+options(knitr.kable.NA = "")
+
 ```
 
 ```{r functions, include=F}
@@ -76,13 +97,16 @@ make_authors <- function(.tbl,authors_var)
                                  T ~ gl1)) %>%
     split(1:nrow(.)) %>%
     map_dfr(~glue_template(.,.autemp,.$.aut_glue)) %>%
-    mutate(.autemp = gsub("MA Barrowman","**MA Barrowman**",.autemp,fixed=T)) %>%
+    mutate(.autemp = gsub("MA Barrowman",
+                          fmt_choice(html="**MA Barrowman**",
+                                     latex="\\textbf{MA Barrowman}"),
+                          .autemp,fixed=T)) %>%
     mutate(!!enquo(authors_var) := .autemp) %>%
     select(-.aut_glue,-.autemp)
   
 }
 
-kable_W <- function(.tbl,...)
+kable_W <- function(.tbl,...,styling=T)
 {
   .tbl %>%
     if_fun(get_format("latex"),
@@ -93,9 +117,16 @@ kable_W <- function(.tbl,...)
           format=get_format(),
           escape=F,
           booktabs=T,
-          col.names=rep("",ncol(.tbl)))
+          col.names=rep("",ncol(.tbl))) %>%
+    if_fun(styling,
+           function(x) 
+             kable_styling(x,position="center",
+                  font_size=fmt_choice(latex=8,html="inherit")))
 }
     
+
+  
+
 if_fun <- function(.x,.predicate,.fun,.elsefun=NULL) 
 {
   if(.predicate) .fun(.x) else 
@@ -105,7 +136,6 @@ if_fun <- function(.x,.predicate,.fun,.elsefun=NULL)
 }
   
 
-
 ```
 
 :::::{class="brow"}
@@ -113,8 +143,14 @@ if_fun <- function(.x,.predicate,.fun,.elsefun=NULL)
 ::::{class="trow"}
 
 :::{class="leftpanel"}
+`r fmt_choice(latex="\\setlength{\\columnsep}{-2.5cm}")`
+`r fmt_choice(latex="\\def\\toprule{}")`
 
-```{r profile,echo=F,out.width="95%"}
+
+`r fmt_choice(latex="\\begin{multicols}{2}")`
+
+
+```{r profile,echo=F,out.width=fmt_choice(html="95%",latex="0.3\\textwidth")}
 knitr::include_graphics("img/ProfileHex.png")
 ```
 
@@ -131,11 +167,11 @@ read_csv("data/Contact.csv",col_types=cols()) %>%
   mutate(favicon = paste0("img/logos/",medium,"-logo.png"))%>%
   glue_template(ss,contact_template) %>%
   select(ss) %>%
-  kable_W
+  kable_W(styling=F)
 
 ```
 
-
+`r fmt_choice(latex="\\end{multicols}")`
 
 :::
 
@@ -147,7 +183,7 @@ read_csv("data/Contact.csv",col_types=cols()) %>%
 
 ### About Me
 
-I have a Masters degree in Mathematics and am currently studying towards a PhD in Medicine with a focus on statistics from both an applied and methodological perspective. I am also working as a Maths and Stats Tutor, whilst developing my skills as a keen data scientist. I have a wide range of knowledge about a multitude of computer languages and data analysis techniques and enjoy learning more of what these languages have to offer. I am an excellent communicator and can convey complex ideas into simple narratives.
+Expert data scientist with a Masters Degree in Mathematics, approaching completion of a PhD in Medicine with a focus on Statistics. Achievements include 10% improvement in effective productivity in examination marking, the creation of SAPs and SOPs for a pioneering pragmatic clinical trial and the development and validation of a multi-state clinical predication model, as well as the methodological advancements to produce such a model. I have a multitude of published works including packages in R, where my most recent experience lies, articles in high impact journals covering methodology and clinical advances. Highly skilled in data processing, visualisation and model building.
 
 ### Skills
 
@@ -159,9 +195,9 @@ skills_template <- fmt_choice(
                                  
   
   
-skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS","Python","SAS","Stata","SQL","Photoshop") %>%
+skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS","Regex","Python","SAS","Stata","SQL","Microsoft Office","Google Suite","Photoshop") %>%
   tibble(skill=.) %>%
-  mutate(logo = paste0("img/logos/",gsub("/","-",skill),"-logo.png")) %>%
+  mutate(logo = paste0("img/logos/",tolower(gsub(" ","-",gsub("/","-",skill))),"-logo.png")) %>%
   glue_template(ss,skills_template) %>%
   pull(ss) %>%
   paste0(collapse=fmt_choice(latex="\\quad ",html="&emsp13;&mdash;&emsp13;"))
@@ -170,14 +206,13 @@ skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS",
 `r skills_hl`
 
 
-
+\newpage
 ## Experience
 
 &nbsp;
 
 I have worked in a variety of roles in both the public and private sector, covering two primary fields: Education and Data Analysis. Several of my roles have incorporated both of these facets.
-
-&nbsp;
+`r fmt_choice(html="&nbsp;")`
 
 ```{r, echo=F}
 Exp_tbl <- read_csv("data/Experience.csv",col_types = cols()) %>%
@@ -191,22 +226,35 @@ Exp_tbl <- read_csv("data/Experience.csv",col_types = cols()) %>%
          End = replace_na(End,"Present"))
 
 Exp_Template <- fmt_choice(
-  latex="\\makecell[l]{**{{`Job Title`}}**, {{Start}} - {{End}}\\\\\\
+  latex="\\makecell[l]{\\textbf{ {{`Job Title`}} }, {{Start}} - {{End}}\\\\\\
           {{Description}}}",
   html="<div class=\"grow\">**{{`Job Title`}}**, {{Start}} - {{End}}<p>{{Description}}</p></div>"
 )
 
 
 grp_index <- auto_index(as.character(Exp_tbl$Employer))
-Exp_tbl %<>% select(-Employer)
-
+grp_index <- fmt_choice(latex=ceiling(grp_index/2),
+                        html=grp_index)
+suppressWarnings(
 Exp_tbl %>%
   glue_template(ss,Exp_Template) %>%
-  select(ss) %>%
+  if_fun(get_format("html"),
+         function(x) select(x,ss),
+         function(x) select(x,Employer,ss) %>%
+           group_by(Employer) %>%
+           mutate(l_r = if_else(row_number()%%2 == 1,"l","r"),
+                  E_r = ceiling(row_number()/2)) %>%
+           pivot_wider(names_from=l_r,values_from=ss,names_prefix="ss_") %>%
+           ungroup %>%
+           select(ss_l,ss_r)) %>%
   kable_W %>%
-  kable_styling(bootstrap_options = "basic",
-                latex_options="basic") %>%
-  pack_rows(index=grp_index)
+  kable_styling() %>%
+  pack_rows(index=grp_index,
+            hline_after=get_format("latex"),
+            italic=get_format("latex")) %>%
+  if_fun(get_format("latex"),
+         function(x) column_spec(x,1:2,width="0.45\\\\textwidth")) 
+)
 ```
 
 ## Packages
@@ -223,7 +271,7 @@ Package_img <- fmt_choice(
 )
 
 Package_text <- fmt_choice(
-  latex=c("\\makecell[l]{**{{Name}}**\\\\\\ {{Description}}}"),
+  latex=c("\\makecell[l]{\\textbf{ {{Name}}}\\\\\\ {{Description}}}"),
   html=c("**{{Name}}**<br>{{Description}}")
 )
 
@@ -244,7 +292,9 @@ Pack_out <- Pack_tbl %>%
         select(left_col,right_col) %>%
         kable_W %>%
         column_spec(column=1+1*!align,
-                    width=fmt_choice(html="20%",latex="0.2\textwidth")) %>%
+                    width=fmt_choice(html="20%",latex="0.2\\\\textwidth"))%>%
+        column_spec(column=1+1*align,
+                    width=fmt_choice(html="80%",latex="0.8\\\\textwidth")) %>%
         paste0
     }) %>%
   paste0(collapse="\n")
@@ -259,17 +309,19 @@ Pack_out <- Pack_tbl %>%
 
 
 Pub_Template <- fmt_choice(
-  latex="{{authors}}, *{{Title}}*, {{Journal}} ({{Year}}) doi:{{doi}}",
+  latex="{{authors}}, \\emph{ {{Title}} }, {{Journal}} ({{Year}}) doi:{{doi}}",
   html="<p>{{authors}}, *{{Title}}*, {{Journal}} ({{Year}}) doi:<a href=\"https://doi.org/{{doi}}\">{{doi}}</a></p>"
 )
 
-read_csv("data/Publications.csv",col_types=cols()) %>%
+read_csv("data/Publications.csv",col_types=cols()) %>% 
+  arrange(desc(Year)) %>%
   make_authors(authors) %>%
   glue_template(ss,Pub_Template) %>%
   select(ss)%>%
   if_fun(get_format("html"),
          function(x) kable_W(x,padding=0),
-         function(x) kable_W(x))
+         function(x) kable_W(x) %>%
+           column_spec(1,width="\\\\textwidth"))
 
 ```
 
@@ -277,6 +329,6 @@ read_csv("data/Publications.csv",col_types=cols()) %>%
 ::::
 
 ::::{class="footer"}
-Online CV Produced by Michael Barrowman via RMarkdown: [Source](https://github.com/MyKo101/CV)
+`r fmt_choice(html="Online CV Produced by Michael Barrowman via RMarkdown: [Source](https://github.com/MyKo101/CV)", latex="")`
 ::::
 :::::
