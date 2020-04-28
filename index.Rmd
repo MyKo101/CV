@@ -1,7 +1,7 @@
 ---
 title: "Michael Barrowman, MSci"
 always_allow_html: true
-geometry: "left=1cm,right=1cm,top=1cm,bottom=1cm"
+geometry: "left=1cm,right=1cm,top=1cm,bottom=2cm"
 #classoption: twocolumn
 knit: (function(...) rmarkdown::render(...,output_format="all"))
 output:
@@ -117,7 +117,7 @@ kable_W <- function(.tbl,...,styling=T)
           format=get_format(),
           escape=F,
           booktabs=T,
-          col.names=rep("",ncol(.tbl))) %>%
+          col.names=NULL) %>%
     if_fun(styling,
            function(x) 
              kable_styling(x,position="center",
@@ -144,7 +144,7 @@ if_fun <- function(.x,.predicate,.fun,.elsefun=NULL)
 
 :::{class="leftpanel"}
 `r fmt_choice(latex="\\setlength{\\columnsep}{-2.5cm}")`
-`r fmt_choice(latex="\\def\\toprule{}")`
+`r fmt_choice(latex="\\def\\addlinespace{}")`
 
 
 `r fmt_choice(latex="\\begin{multicols}{2}")`
@@ -209,10 +209,6 @@ skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS",
 \newpage
 ## Experience
 
-&nbsp;
-
-I have worked in a variety of roles in both the public and private sector, covering two primary fields: Education and Data Analysis. Several of my roles have incorporated both of these facets.
-`r fmt_choice(html="&nbsp;")`
 
 ```{r, echo=F}
 Exp_tbl <- read_csv("data/Experience.csv",col_types = cols()) %>%
@@ -259,7 +255,6 @@ Exp_tbl %>%
 
 ## Packages
 
-&nbsp;
 
 ```{r packages,echo=F, asis=T}
 
@@ -271,7 +266,7 @@ Package_img <- fmt_choice(
 )
 
 Package_text <- fmt_choice(
-  latex=c("\\makecell[l]{\\textbf{ {{Name}}}\\\\\\ {{Description}}}"),
+  latex=c("\\makecell[tp{0.7\\textwidth}]{\\textbf{ {{Name}}} \\\\ {{Description}} }}"),
   html=c("**{{Name}}**<br>{{Description}}")
 )
 
@@ -292,9 +287,11 @@ Pack_out <- Pack_tbl %>%
         select(left_col,right_col) %>%
         kable_W %>%
         column_spec(column=1+1*!align,
-                    width=fmt_choice(html="20%",latex="0.2\\\\textwidth"))%>%
+                    width=fmt_choice(html="20%",latex="0.1\\\\textwidth"))%>%
         column_spec(column=1+1*align,
                     width=fmt_choice(html="80%",latex="0.8\\\\textwidth")) %>%
+        if_fun(get_format("latex"),
+               function(x) gsub("\\newline","\\\\",x,fixed=T)) %>%
         paste0
     }) %>%
   paste0(collapse="\n")
@@ -302,7 +299,6 @@ Pack_out <- Pack_tbl %>%
 `r Pack_out`
 
 ## Publications
-&nbsp;
 
 
 ```{r publications, echo=F}
