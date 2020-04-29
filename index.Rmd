@@ -3,12 +3,15 @@ title: "Michael Barrowman, MSci"
 always_allow_html: true
 geometry: "left=1cm,right=1cm,top=1cm,bottom=2cm"
 #classoption: twocolumn
-knit: (function(...) rmarkdown::render(...,output_format="all"))
+knit:
+  (function(...)
+    rmarkdown::render(...,
+      output_format=c("html_document","pdf_document"),
+      output_file=c("index.html","Michael Barrowman.pdf"))) 
 output:
   html_document:
-    includes:
-      in_header: "header.html" 
     css: style.css
+    favicon: "img/favicon.ico"
   pdf_document:
     keep_tex: true
     latex_engine: xelatex
@@ -140,13 +143,13 @@ Add_alt_to_contacts <- function(.tbl)
   if(get_format("html"))
   {
     .alt <- tibble(favicon="img/logos/pdf-logo.png",
-                   link="index.pdf",
+                   link="Michael Barrowman.pdf",
                    contact="Download PDF CV")
   } else if(get_format("latex"))
   {
     .alt <- tibble(favicon="img/logos/internet-logo.png",
                    link="https://MichaelBarrowman.co.uk/CV/index.html",
-                   contact="Online CV")
+                   contact="MichaelBarrowman.co.uk/CV")
   }
   
   return(bind_rows(.tbl,.alt))
