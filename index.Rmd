@@ -29,6 +29,7 @@ header-includes:
 - \usepackage{makecell}
 - \usepackage{xcolor}
 - \usepackage{multicol}
+- \usepackage{hyperref}
 ---
 
 ```{r setup, include=FALSE}
@@ -120,8 +121,7 @@ kable_W <- function(.tbl,...,styling=T)
           col.names=NULL) %>%
     if_fun(styling,
            function(x) 
-             kable_styling(x,position="center",
-                  font_size=fmt_choice(latex=8,html="inherit")))
+             kable_styling(x,position="center"))
 }
     
 
@@ -135,8 +135,30 @@ if_fun <- function(.x,.predicate,.fun,.elsefun=NULL)
         .x
 }
   
+Add_alt_to_contacts <- function(.tbl)
+{
+  if(get_format("html"))
+  {
+    .alt <- tibble(favicon="img/logos/pdf-logo.png",
+                   link="index.pdf",
+                   contact="Download PDF CV")
+  } else if(get_format("latex"))
+  {
+    .alt <- tibble(favicon="img/logos/internet-logo.png",
+                   link="index.html",
+                   contact="Online CV")
+  }
+  
+  return(bind_rows(.tbl,.alt))
+  
+}
+
 
 ```
+`r fmt_choice(latex="\\newcommand{\\bcols}{\\begin{multicols}{2}}")`
+`r fmt_choice(latex="\\newcommand{\\ecols}{\\end{multicols} }")`
+`r fmt_choice(latex="\\newcommand{\\iimg}[1]{\\includegraphics[height=2ex]{#1}}")`
+`r fmt_choice(latex="\\renewcommand{\\arraystretch}{1.7}")`
 
 :::::{class="brow"}
 
@@ -147,7 +169,7 @@ if_fun <- function(.x,.predicate,.fun,.elsefun=NULL)
 `r fmt_choice(latex="\\def\\addlinespace{}")`
 
 
-`r fmt_choice(latex="\\begin{multicols}{2}")`
+`r fmt_choice(latex="\\bcols")`
 
 
 ```{r profile,echo=F,out.width=fmt_choice(html="95%",latex="0.3\\textwidth")}
@@ -159,19 +181,19 @@ knitr::include_graphics("img/ProfileHex.png")
 ```{r contact, echo=F}
 
 contact_template <- fmt_choice(
-  latex = "{{medium}}: {{contact}}",
+  latex = "\\iimg{ {{favicon}}} \\href{ {{link}}}{ {{contact}}}", 
   html = "<img src=\"{{favicon}}\" width=\"20px\" >: <a href =\"{{link}}\">{{contact}}</a>"
 )
 
 read_csv("data/Contact.csv",col_types=cols()) %>%
   mutate(favicon = paste0("img/logos/",medium,"-logo.png"))%>%
+  Add_alt_to_contacts %>%
   glue_template(ss,contact_template) %>%
   select(ss) %>%
   kable_W(styling=F)
 
 ```
 
-`r fmt_choice(latex="\\end{multicols}")`
 
 :::
 
@@ -190,7 +212,7 @@ Expert data scientist with a Masters Degree in Mathematics, approaching completi
 ```{r skills, echo=F}
 
 skills_template <- fmt_choice(
-  latex="{{skill}}",
+  latex="\\mbox{\\iimg{ {{logo}}} {{skill}}}",
   html="<span class=skilllogo><img src=\"{{logo}}\" height=20px/>{{skill}}</span>")
                                  
   
@@ -200,13 +222,16 @@ skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS",
   mutate(logo = paste0("img/logos/",tolower(gsub(" ","-",gsub("/","-",skill))),"-logo.png")) %>%
   glue_template(ss,skills_template) %>%
   pull(ss) %>%
-  paste0(collapse=fmt_choice(latex="\\quad ",html="&emsp13;&mdash;&emsp13;"))
+  paste0(collapse=fmt_choice(latex="\\quad",html="&emsp13;&mdash;&emsp13;"))
 ```
 
 `r skills_hl`
 
+### 
 
-\newpage
+`r fmt_choice(latex="\\ecols")`
+
+
 ## Experience
 
 
@@ -214,6 +239,8 @@ skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS",
 Exp_tbl <- read_csv("data/Experience.csv",col_types = cols()) %>%
   mutate(Start = dmy(paste0("01 ",Start),quiet=T),
          End = dmy(paste0("01",End),quiet=T)) %>%
+  if_fun(get_format("latex"),
+         function(x) filter(x,Include)) %>%
   arrange(!is.na(End),desc(Start)) %>%
   mutate(Employer = fct_inorder(Employer)) %>%
   arrange(Employer,!is.na(End),desc(End)) %>%
@@ -231,6 +258,7 @@ Exp_Template <- fmt_choice(
 grp_index <- auto_index(as.character(Exp_tbl$Employer))
 grp_index <- fmt_choice(latex=ceiling(grp_index/2),
                         html=grp_index)
+
 suppressWarnings(
 Exp_tbl %>%
   glue_template(ss,Exp_Template) %>%
@@ -253,27 +281,28 @@ Exp_tbl %>%
 )
 ```
 
-## Packages
+## Software
 
 
-```{r packages,echo=F, asis=T}
+```{r software,echo=F, asis=T}
 
-Pack_tbl <- read_csv("data/Packages.csv",col_types=cols())
+Soft_tbl <- read_csv("data/Software.csv",col_types=cols())
 
-Package_img <- fmt_choice(
-  latex="\\includegraphics{ {{logo}}}",
+Software_img <- fmt_choice(
+  latex="\\raisebox{-0.7\\height}{\\includegraphics[width=2cm]{ {{logo}}}}",
   html="<center><a href=\"{{link}}\"><img src=\"{{logo}}\" width=\"95\\%\"/></a></center>"
 )
 
-Package_text <- fmt_choice(
-  latex=c("\\makecell[tp{0.7\\textwidth}]{\\textbf{ {{Name}}} \\\\ {{Description}} }}"),
-  html=c("**{{Name}}**<br>{{Description}}")
+Software_text <- fmt_choice(
+  latex=c("\\makecell[tp{0.7\\textwidth}]{\\textbf{ {{Name}}} ({{Type}}) \\\\ {{Description}} }}"),
+  html=c("**{{Name}}** ({{Type}})<br>{{Description}}")
 )
 
-Pack_out <- Pack_tbl %>%
+
+Soft_out <- Soft_tbl %>%
   mutate(logo=paste0("img/logos/",Name,"-logo.png")) %>%
-  glue_template(img,Package_img) %>%
-  glue_template(text,Package_text) %>%
+  glue_template(img,Software_img) %>%
+  glue_template(text,Software_text) %>%
   select(img,text) %>%
   mutate(align = row_number() %% 2 == 1,
          left_col = if_else(align,img,text),
@@ -296,7 +325,7 @@ Pack_out <- Pack_tbl %>%
     }) %>%
   paste0(collapse="\n")
 ```
-`r Pack_out`
+`r Soft_out`
 
 ## Publications
 
@@ -317,7 +346,7 @@ read_csv("data/Publications.csv",col_types=cols()) %>%
   if_fun(get_format("html"),
          function(x) kable_W(x,padding=0),
          function(x) kable_W(x) %>%
-           column_spec(1,width="\\\\textwidth"))
+           column_spec(1,width="0.9\\\\textwidth"))
 
 ```
 

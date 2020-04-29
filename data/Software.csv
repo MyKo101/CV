@@ -1,0 +1,2 @@
+link,Creator,Name,Type,Description
+https://michaelbarrowman.co.uk/typos/,TRUE,typos,R Package,The goal of typos is to provide a flexible warning when commonly mis-typed functions are called. Functions with typing errors will still be evaluated and a warning will be output. It also provides the user with a convenient function to define their own typos.
