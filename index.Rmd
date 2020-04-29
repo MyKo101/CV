@@ -10,8 +10,9 @@ knit:
       output_file=c("index.html","Michael Barrowman.pdf"))) 
 output:
   html_document:
+    includes:
+      in_header: "header.html" 
     css: style.css
-    favicon: "img/favicon.ico"
   pdf_document:
     keep_tex: true
     latex_engine: xelatex
