@@ -357,6 +357,6 @@ read_csv("data/Publications.csv",col_types=cols()) %>%
 ::::
 
 ::::{class="footer"}
-`r fmt_choice(html="Online CV Produced by Michael Barrowman via RMarkdown: [Source](https://github.com/MyKo101/CV)", latex="")`
+`r fmt_choice(html="Online & Downloadable CV Produced by Michael Barrowman via RMarkdown: [Source](https://github.com/MyKo101/CV)")`
 ::::
 :::::
