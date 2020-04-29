@@ -145,7 +145,7 @@ Add_alt_to_contacts <- function(.tbl)
   } else if(get_format("latex"))
   {
     .alt <- tibble(favicon="img/logos/internet-logo.png",
-                   link="index.html",
+                   link="https://MichaelBarrowman.co.uk/CV/index.html",
                    contact="Online CV")
   }
   
