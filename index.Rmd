@@ -209,7 +209,7 @@ read_csv("data/Contact.csv",col_types=cols()) %>%
 
 ### About Me
 
-Expert data scientist with a Masters Degree in Mathematics, approaching completion of a PhD in Medicine with a focus on Statistics. Achievements include 10% improvement in effective productivity in examination marking, the creation of SAPs and SOPs for a pioneering pragmatic clinical trial and the development and validation of a multi-state clinical predication model, as well as the methodological advancements to produce such a model. I have a multitude of published works including packages in R, where my most recent experience lies, articles in high impact journals covering methodology and clinical advances. Highly skilled in data processing, visualisation and model building.
+Expert data scientist with a Masters Degree in Mathematics, approaching completion of a PhD in Medicine with a focus on Statistics. Achievements include 10% improvement in effective productivity in examination marking, the creation of SAPs and SOPs for a pioneering pragmatic clinical trial and the development and validation of a multi-state clinical predication model, as well as the methodological advancements to produce such a model. I have a multitude of published works including packages in R, where my most recent experience lies, articles in high impact journals covering methodology and clinical advances. Highly skilled in data processing, visualisation and model building. Extremely versatile in language use and flexible in it's application.
 
 ### Skills
 
@@ -221,7 +221,7 @@ skills_template <- fmt_choice(
                                  
   
   
-skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","HTML/CSS","Regex","Python","SAS","Stata","SQL","Microsoft Office","Google Suite","Photoshop") %>%
+skills_hl <- c("R","RMarkdown","LaTeX","SPSS","NVivo","Git","GitHub","GitHub Actions","HTML/CSS","Regex","Python","SAS","Stata","SQL","Microsoft Office","Google Suite","Photoshop") %>%
   tibble(skill=.) %>%
   mutate(logo = paste0("img/logos/",tolower(gsub(" ","-",gsub("/","-",skill))),"-logo.png")) %>%
   glue_template(ss,skills_template) %>%
