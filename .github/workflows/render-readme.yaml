@@ -14,6 +14,7 @@ jobs:
       - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-pandoc@v1
       - uses: r-lib/actions/setup-tinytex@v1
+      - run: tlmgr --version
       - name: Install rmarkdown
         run: Rscript -e 'install.packages("rmarkdown")'
       - name: Install tidyverse
@@ -26,10 +27,10 @@ jobs:
         run: Rscript -e 'install.packages("magrittr")'
       - name: Install glue
         run: Rscript -e 'install.packages("glue")'
-      - name: Render pdf
-        run: Rscript -e 'rmarkdown::render("index.Rmd",output_format="pdf_document",output_file="Michael Barrowman.pdf")'
       - name: Render html
         run: Rscript -e 'rmarkdown::render("index.Rmd",output_format="html_document",output_file="index.html")'
+      - name: Render pdf
+        run: Rscript -e 'rmarkdown::render("index.Rmd",output_format="pdf_document",output_file="Michael Barrowman.pdf")'
       - name: Commit results
         run: |
           git commit index.html 'Michael Barrowman.pdf' -m 'Rendered CV' || echo "No changes to commit"
