@@ -10,9 +10,9 @@ jobs:
     name: Render pdf
     runs-on: macOS-latest
     steps:
-      - uses: actions/checkout@master
-      - uses: r-lib/actions/setup-tinytex@v1
-      - run: tlmgr --version
+    - uses: actions/checkout@master
+    - uses: r-lib/actions/setup-tinytex@v1
+    - run: tlmgr --version
   render2:
     name: Render html
     runs-on: macOS-latest
