@@ -15,7 +15,6 @@ output:
     css: style.css
   pdf_document:
     keep_tex: true
-    latex_engine: xelatex
 sansfont: Calibri Light
 header-includes:
 - \usepackage{booktabs}
