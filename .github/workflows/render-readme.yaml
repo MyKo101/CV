@@ -11,8 +11,8 @@ jobs:
     runs-on: macOS-latest
     steps:
       - uses: actions/checkout@master
-      - uses: r-lib/actions/setup-r@v1
       - uses: r-lib/actions/setup-tinytex@v1
+      - uses: r-lib/actions/setup-r@v1
       - run: tlmgr --version
       - name: Install rmarkdown
         run: Rscript -e 'install.packages("rmarkdown")'
