@@ -310,14 +310,14 @@ Soft_out <- Soft_tbl %>%
   mutate(align = row_number() %% 2 == 1,
          left_col = if_else(align,img,text),
          right_col = if_else(align,text,img)) %>%
-  select(align,left_col,right_col) %>%
+  select(align,left_col,right_col) %>% 
   split(1:nrow(.)) %>%
   map_chr(function(x)
     {
       align <- x$align
       x %>%
         select(left_col,right_col) %>%
-        kable_W %>%
+        kable_W(align="rl") %>%
         column_spec(column=1+1*!align,
                     width=fmt_choice(html="20%",latex="0.1\\\\textwidth"))%>%
         column_spec(column=1+1*align,
