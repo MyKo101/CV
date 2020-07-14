@@ -1,3 +1,4 @@
 link,Creator,Name,Type,Description
 https://michaelbarrowman.co.uk/typos/,TRUE,typos,R Package,The goal of typos is to provide a flexible warning when commonly mis-typed functions are called. Functions with typing errors will still be evaluated and a warning will be output. It also provides the user with a convenient function to define their own typos.
 https://michaelbarrowman.co.uk/mutils/,TRUE,mutils,R Package,"The goal of mutils is to provide useful functions to make data processing smoother. Most functions contained here are ""nifty"", rather than ""innovative""."
+https://michaelbarrowman.co.uk/mpipe/,TRUE,mpipe,R Package,The mpipe package is designed to add extra functionality to the pipeline process in tidyverse style R usage

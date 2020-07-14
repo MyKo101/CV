@@ -59,6 +59,11 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newenvironment{brow}{}{}
+\newenvironment{trow}{}{}
+\newenvironment{leftpanel}{}{}
+\newenvironment{footer}{}{}
+
 \usepackage{booktabs}
 \usepackage{longtable}
 \usepackage{array}
@@ -88,10 +93,16 @@
 \newcommand{\iimg}[1]{\includegraphics[height=2ex]{#1}}
 \renewcommand{\arraystretch}{1.7}
 
+\begin{brow}
+
+\begin{trow}
+
 \setlength{\columnsep}{-2.5cm}
 \def\addlinespace{}
 
 \begin{multicols}{2}
+
+\begin{leftpanel}
 
 \includegraphics[width=0.3\textwidth]{img/ProfileHex}
 
@@ -108,6 +119,8 @@
 \includegraphics[height=2ex]{ img/logos/internet-logo.png} \href{ https://MichaelBarrowman.co.uk/CV/index.html}{ MichaelBarrowman.co.uk/CV}\\
 \bottomrule
 \end{tabular}
+
+\end{leftpanel}
 
 \hypertarget{section}{%
 \section{}\label{section}}
@@ -189,6 +202,14 @@ versatile in language use and flexible in it's application.
 \bottomrule
 \end{tabular}
 \end{table}
+\begin{table}[H]
+\centering
+\begin{tabular}{>{\raggedleft\arraybackslash}p{0.1\textwidth}>{\raggedright\arraybackslash}p{0.8\textwidth}}
+\toprule
+\raisebox{-0.7\height}{\includegraphics[width=2cm]{ img/logos/mpipe-logo.png}} & \makecell[tp{0.7\textwidth}]{\textbf{ mpipe} (R Package) \\  The mpipe package is designed to add extra functionality to the pipeline process in tidyverse style R usage }\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \hypertarget{publications}{%
 \subsection{Publications}\label{publications}}
@@ -203,5 +224,13 @@ A Pate, \textbf{MA Barrowman}, D Webb et al, \emph{ Study investigating the gene
 \bottomrule
 \end{tabular}
 \end{table}
+
+\end{trow}
+
+\begin{footer}
+
+\end{footer}
+
+\end{brow}
 
 \end{document}
